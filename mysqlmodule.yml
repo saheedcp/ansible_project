@@ -1,0 +1,49 @@
+---
+- name: install apache & php & mysql
+  hosts: host2
+  become: true
+  become_user: root
+  gather_facts: true
+  tasks:
+    - name: Install "pip"
+      apt: name=python3-pip state=present
+    - name: Install "ibmysqlclient-dev"
+      apt: 
+        name: libmysqlclient-dev 
+        state: present
+    - name: Install the Python MySQLB module
+      pip: name=MySQL-python state=forcereinstall
+    - name: install mysql
+      package:
+        name: "{{item}}"
+        state: present
+        update_cache: yes
+      loop:
+        - mysql-server
+        - mysql-client
+        - python-mysqldb
+           
+    - name: start and enable mysql
+      service:
+         name: mysql
+         state: started
+         enabled: yes   
+    - name: creatingmysql  user
+      mysql_user:
+        name: "{{dbuser}}"
+        password: "{{dbpass}}"
+        priv: '*.*:ALL'
+        host: '%'
+        state: present
+    - name: creating db
+      mysql_db:
+        name: "{{dbname}}"
+        state: present
+        
+        #- name: "Create database user saheed"
+        #- mysql_user: user=edureka password=edureka priv=*.*:ALL state=present
+        # - name: "Create database saheed"
+        #- mysql_db: db=saheed state=present
+
+        #- name: "Create a Table reg"
+        # command: mysql -u saheed -p saheed -e 'CREATE TABLE reg (name varchar(30),email varchar(30),password varchar(50));' saheed
