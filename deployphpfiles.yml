@@ -1,0 +1,21 @@
+---
+- name: copy
+  hosts: host2
+  become: true
+  become_user: root
+  gather_facts: true
+  tasks: 
+    - name: "copy file"
+      copy: src=/root/ansibleplay/files/
+            dest=/var/www/html/example
+    - name: "copy file"
+      copy: src=/root/ansibleplay/conf.j2
+            dest=/etc/apache2/sites-available/000-default.conf
+    - name: Reload Apache 
+      service: 
+          name: apache2 
+          state: reloaded 
+    - name: Restart Apache 
+      service: 
+          name: apache2 
+          state: restarted

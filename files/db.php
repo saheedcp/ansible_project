@@ -1,7 +1,7 @@
 <?php
 // Enter your Host, username, password, database below.
 // I left password empty because i do not set password on localhost.
-$con = mysqli_connect("10.7.90.152","root","qburst","shazil");
+$con = mysqli_connect("localhost","saheed","saheed","saheed");
 // Check connection
 if (mysqli_connect_errno())
   {
