@@ -1,6 +1,6 @@
 ---
 - name: install apache & php & mysql
-  hosts: host2
+  hosts: host1
   become: true
   become_user: root
   gather_facts: true
@@ -19,3 +19,5 @@
       package: name=php-mysql state=present
     - name: "install mysqlserver"
       package: name=mysql-server state=present
+
+
