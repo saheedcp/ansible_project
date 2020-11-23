@@ -1,0 +1,54 @@
+---
+#file to install mysql and create mysqldb,user,table and bid the host address of host2 server
+- name: install mysql& bind host address
+  hosts: host2
+  become: true
+  become_user: root
+  gather_facts: true
+  tasks:
+          #- name: Install "pip"
+          #apt: name=python3-pip state=present
+          #    - name: Install "ibmysqlclient-dev"
+          #apt:
+          #  name: libmysqlclient-dev
+          # state: present
+          # - name: Install the Python MySQLB module
+          # pip: name=MySQL-python state=forcereinstall
+    - name: install mysql
+      package:
+        name: "{{item}}"
+        state: present
+        update_cache: yes
+      loop:
+        - libmysqlclient-dev
+        - mysql-server
+        - mysql-client
+        - python-mysqldb
+
+    - name: start and enable mysql
+      service:
+         name: mysql
+         state: started
+         enabled: yes
+    - name: creatingmysql  user
+      mysql_user:
+        name: "{{dbuser}}"
+        password: "{{dbpass}}"
+        priv: '*.*:ALL'
+        host: '%'
+        state: present
+    - name: creating db
+      mysql_db:
+        name: "{{dbname}}"
+        state: present
+    - name: enable remote login to mysql
+      lineinfile:
+        path: /etc/mysql/mysql.conf.d/mysqld.cnf
+        regexp: "^bind-address"
+        line: "bind-address = 0.0.0.0"
+    - name: Restart mysql
+      service:
+        name: mysql
+        state: restarted
+    - name: "Create a Table "
+      command: mysql -u saheed -psaheed -h localhost -e "CREATE TABLE IF NOT EXISTS users (id int(11) NOT NULL AUTO_INCREMENT,username VARCHAR(50) NOT NULL, email VARCHAR(50) NOT NULL,password varchar(50) NOT NULL,trn_date datetime NOT NULL,PRIMARY KEY (id));" saheed
