@@ -1,5 +1,6 @@
 ---
-- name: install apache & php & mysql
+#installing appache2 and php in host1 server1
+- name: install apache&php
   hosts: host1
   become: true
   become_user: root
@@ -19,7 +20,7 @@
       package: name=php-mysql state=present
     - name: "install mysqlserver"
       package: name=mysql-server state=present
-
+#copy all the files from remote to host1 (for deploy)
     - name: "copy file"
       copy: src=/root/ansible_project/files/
             dest=/var/www/html/example
@@ -39,8 +40,13 @@
       service:
           name: apache2
           state: restarted
-
-
+#next lines are used to install mysql and create mysqldb,user,table etc;in next host server2 and bind the address of the server as a new task
+- name: install mysql&bind address
+  hosts: host2
+  become: true
+  become_user: root
+  gather_facts: true
+  tasks:
 
     - name: install mysql
       package:
@@ -58,6 +64,7 @@
          name: mysql
          state: started
          enabled: yes
+    
     - name: creatingmysql  user
       mysql_user:
         name: "{{dbuser}}"
@@ -69,7 +76,16 @@
       mysql_db:
         name: "{{dbname}}"
         state: present
-
+   
+    - name: enable remote login to mysql
+      lineinfile:
+        path: /etc/mysql/mysql.conf.d/mysqld.cnf
+        regexp: "^bind-address"
+        line: "bind-address = 0.0.0.0"
+    - name: Restart mysql
+      service:
+        name: mysql
+        state: restarted
     - name: "Create a Table "
-      command: mysql -u saheed -psaheed -h localhost -e "CREATE TABLE IF NOT EXISTS users (id int(11) NOT NULL AUTO_INCREMENT,username VARCHAR(50) NOT NULL, email VARCHAR(50) NOT NULL,password varchar(50) NOT NULL,trn_date datetime NOT NULL,PRIMARY KEY (id));" saheed
-
+      command: mysql -u saheed -psaheed -e "CREATE TABLE IF NOT EXISTS users (id int(11) NOT NULL AUTO_INCREMENT,username VARCHAR(50) NOT NULL, email VARCHAR(50) NOT NULL,password varchar(50) NOT NULL,trn_date datetime NOT NULL,PRIMARY KEY (id));" saheed
+...
