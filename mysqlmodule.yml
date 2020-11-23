@@ -1,6 +1,6 @@
 ---
-- name: install apache & php & mysql
-  hosts: host2
+- name: install apache & php
+  hosts: host1
   become: true
   become_user: root
   gather_facts: true
